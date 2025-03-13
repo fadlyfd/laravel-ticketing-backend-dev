@@ -28,7 +28,6 @@ class OrderController extends Controller
         ]);
 
         // check ticket availability by sku id
-
         foreach ($request->order_details as $orderDetail) {
             $sku = Sku::find($orderDetail['sku_id']);
             $qty = $orderDetail['qty'];
@@ -85,11 +84,13 @@ class OrderController extends Controller
 
         $midtrans =  new CreatePaymentUrlService();
         $user = $request->user();
+
+        $paymentUrl = $midtrans->getPaymentUrl($request->order_details, $order);
+        $order->update([
+            'payment_url' => $paymentUrl,
+        ]);
         $order['user'] = $user;
         $order['orderItems'] = $request->order_details;
-        $paymentUrl = $midtrans->getPaymentUrl($order);
-        $order['paymentUrl'] = $paymentUrl;
-
         //return response
         return response()->json([
             'status' => 'success',
@@ -176,10 +177,16 @@ class OrderController extends Controller
             ->get();
 
         $sumTotalOrder = $orders->sum('total_price');
-        Log::info($orders[0]->total_price);
+
+        if ($orders->isNotEmpty()) {
+            Log::info($orders[0]->total_price);
+        } else {
+            Log::info('No orders found.');
+        }
+
         return response()->json([
             'status' => 'success',
-            'message' => 'Get all order history by vendor',
+            'message' => 'Get total price order history by vendor',
             'data' => $sumTotalOrder
         ]);
     }

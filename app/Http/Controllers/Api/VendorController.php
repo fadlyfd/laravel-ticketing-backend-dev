@@ -15,4 +15,32 @@ class VendorController extends Controller
             'data' => $vendor
         ], 200);
     }
+
+    public function createVendor(Request $request){
+        $request->validate([
+            'user_id' => 'required',
+            'name' => 'required',
+            'description' => 'required',
+            'location' => 'required',
+            'phone' => 'required',
+            'city' => 'required',
+        ]);
+
+        $data = $request->all();
+        $data['verify_status'] = 'pending';
+        $user = \App\Models\User::find($data['user_id']);
+        $user->is_vendor = 1;
+        $user->save();
+
+        $vendor = \App\Models\Vendor::create($data);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Vendor created successfully',
+            'data' => $vendor
+        ], 201);
+
+
+
+    }
 }

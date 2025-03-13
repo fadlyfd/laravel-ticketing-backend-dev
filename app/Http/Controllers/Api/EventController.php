@@ -69,9 +69,42 @@ class EventController extends Controller
     {
         // get events with vendor and event category
         $events = Event::with(['vendor', 'eventCategory', 'tickets.sku'])->get();
+        $result = $events->map(function ($event) {
+            // Kelompokkan tiket berdasarkan SKU
+            $groupedTickets = $event->tickets
+            ->filter(function ($ticket) {
+                return $ticket->status === 'available'; // Filter hanya tiket dengan status 'available'
+            })->groupBy('sku_id')
+            ->map(function ($tickets) {
+                $firstTicket = $tickets->first(); // Ambil satu tiket sebagai referensi untuk data SKU
+                return [
+                    'sku' => [
+                        'id' => $firstTicket->sku->id,
+                        'name' => $firstTicket->sku->name,
+                        'category' => $firstTicket->sku->category,
+                        'price' => $firstTicket->sku->price,
+                        'stock' => $firstTicket->sku->stock,
+                        'day_type' => $firstTicket->sku->day_type,
+                    ],
+                    'ticket_count' => $tickets->count()
+                ];
+            })->values();
+
+            return [
+                'id' => $event->id,
+                'name' => $event->name,
+                'description' => $event->description,
+                'image' => $event->image,
+                'start_date' => $event->start_date,
+                'end_date' => $event->end_date,
+                'vendor' => $event->vendor,
+                'event_category' => $event->eventCategory,
+                'tickets' => $groupedTickets
+            ];
+        });
         return response()->json([
             'status' => 'success',
-            'data' => $events
+            'data' => $result
         ]);
     }
 

@@ -23,4 +23,49 @@ class TicketController extends Controller
             'data' => $tickets
         ]);
     }
+
+    // public function updateTicketStatus($id){
+    //     $ticket = \App\Models\Ticket::find($id);
+    //     $ticket->status = 'redeem';
+    //     $ticket->ticket_date = now();
+    //     $ticket->save();
+    //     return response()->json([
+    //         'status' => 'success',
+    //         'message' => 'Ticket updated successfully',
+    //         'data' => $ticket
+    //     ]);
+    // }
+
+    public function checkTicketValid(Request $request){
+        $request->validate([
+            'ticket_code' => 'required'
+        ]);
+
+        $ticket = \App\Models\Ticket::where('ticket_code', $request->ticket_code)->first();
+        if ($ticket) {
+            if ($ticket->status == 'available') {
+                $ticket->status = 'redeem';
+                $ticket->ticket_date = now();
+                $ticket->save();
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Ticket redeemed successfully',
+                    'isValid' => true
+                ], 200);
+            } else{
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Ticket already redeemed',
+                    'isValid' => false
+                ], 400);
+            }
+        } else{
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Ticket not found',
+                'isValid' => false
+
+            ], 404);
+        }
+    }
 }

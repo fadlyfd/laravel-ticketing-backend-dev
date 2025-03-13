@@ -46,3 +46,12 @@ Route::get('/orders/user/{id}/vendor/total', [OrderController::class, 'getOrderT
 Route::get('/tickets/user/{id}', [TicketController::class, 'getTickeUser'])->middleware('auth:sanctum');
 
 Route::get('/vendors/user/{id}', [VendorController::class, 'getVendorByUser'])->middleware('auth:sanctum');
+Route::post('/vendor', [VendorController::class, 'createVendor'])->middleware('auth:sanctum');
+
+Route::get('/skus/user/{id}', [App\Http\Controllers\Api\SkuController::class, 'index'])->middleware('auth:sanctum');
+
+Route::post('/sku', [App\Http\Controllers\Api\SkuController::class, 'store'])->middleware('auth:sanctum');
+
+// Route::put('/ticket/{id}', [App\Http\Controllers\Api\TicketController::class, 'updateTicketStatus'])->middleware('auth:sanctum');
+
+Route::post('/check-ticket', [App\Http\Controllers\Api\TicketController::class, 'checkTicketValid']);

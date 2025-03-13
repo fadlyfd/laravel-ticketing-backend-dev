@@ -13,6 +13,7 @@ class Order extends Model
         'total_price',
         'status',
         'event_date',
+        'payment_url',
     ];
 
     public function user()

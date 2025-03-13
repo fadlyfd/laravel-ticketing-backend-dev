@@ -16,12 +16,12 @@ class CreatePaymentUrlService extends Midtrans
         parent::__construct();
     }
 
-    public function getPaymentUrl($order)
+    public function getPaymentUrl($orderDetails, $order)
     {
 
         $item_details = new Collection();
 
-        foreach ($order->orderItems as $item) {
+        foreach ($orderDetails as $item) {
 
             $sku = Sku::find($item['sku_id']);
             $item_details->push([
